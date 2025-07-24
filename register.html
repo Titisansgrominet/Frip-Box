@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Se connecter / S'inscrire - Frip'Box</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #e8f5e9;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 320px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    button {
+      width: 95%;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    p.message {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box" id="loginBox">
+    <h2>Connexion</h2>
+    <input type="text" id="loginUsername" placeholder="Nom d'utilisateur" autocomplete="username" />
+    <input type="password" id="loginPassword" placeholder="Mot de passe" autocomplete="current-password" />
+    <button onclick="login()">Se connecter</button>
+    <p id="loginMessage" class="message"></p>
+  </div>
+
+  <div class="box" id="registerBox">
+    <h2>Créer un compte</h2>
+    <input type="text" id="registerUsername" placeholder="Nom d'utilisateur" autocomplete="username" />
+    <input type="password" id="registerPassword" placeholder="Mot de passe" autocomplete="new-password" />
+    <button onclick="register()">Créer mon compte</button>
+    <p id="registerMessage" class="message"></p>
+  </div>
+
+<script>
+  // Fonction connexion
+  function login() {
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const message = document.getElementById("loginMessage");
+
+    if (!username || !password) {
+      message.style.color = "red";
+      message.textContent = "Veuillez remplir tous les champs.";
+      return;
+    }
+
+    const userData = localStorage.getItem(username);
+    if (!userData) {
+      message.style.color = "red";
+      message.textContent = "Nom d'utilisateur inexistant.";
+      return;
+    }
+
+    const user = JSON.parse(userData);
+    if (user.password !== password) {
+      message.style.color = "red";
+      message.textContent = "Mot de passe incorrect.";
+      return;
+    }
+
+    // Connexion réussie
+    sessionStorage.setItem("loggedUser", username);
+    message.style.color = "green";
+    message.textContent = "Connexion réussie ! Redirection...";
+
+    setTimeout(() => {
+      window.location.href = "profile.html";
+    }, 1000);
+  }
+
+  // Fonction inscription
+  function register() {
+    const username = document.getElementById("registerUsername").value.trim();
+    const password = document.getElementById("registerPassword").value;
+    const message = document.getElementById("registerMessage");
+
+    if (!username || !password) {
+      message.style.color = "red";
+      message.textContent = "Veuillez remplir tous les champs.";
+      return;
+    }
+
+    if (localStorage.getItem(username)) {
+      message.style.color = "red";
+      message.textContent = "Ce nom est déjà pris.";
+      return;
+    }
+
+    const user = {
+      password: password,
+      points: 0,
+      adhesionDate: new Date().toLocaleDateString("fr-FR"),
+      bio: "",
+      photo: ""
+    };
+
+    localStorage.setItem(username, JSON.stringify(user));
+    sessionStorage.setItem("loggedUser", username);
+
+    message.style.color = "green";
+    message.textContent = "Compte créé avec succès ! Redirection...";
+
+    setTimeout(() => {
+      window.location.href = "profile.html";
+    }, 1500);
+  }
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

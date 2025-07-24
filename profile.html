@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mon profil - Frip'Box</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    header {
+      background-color: #4caf50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    img.profile-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .info {
+      margin: 10px 0;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    #bioDisplay {
+      margin: 10px auto 20px auto;
+      max-width: 600px;
+      font-style: italic;
+      text-align: center;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      margin: 10px 5px 10px 0;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #editSection {
+      display: none;
+      max-width: 600px;
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    textarea, input[type="file"] {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      resize: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    #qrCodeContainer {
+      margin: 20px auto;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<a href="index.html" class="back-btn">⬅ Retour à l'accueil</a>
+  <header>
+    <h1>Mon profil Frip’Box</h1>
+  </header>
+
+  <div class="container">
+    <img id="profileImage" class="profile-img" src="https://via.placeholder.com/120" alt="Photo de profil" />
+    <h2 id="welcomeUser" class="info">Bienvenue</h2>
+
+    <div class="info">
+      <strong>Temps d’adhésion :</strong> <span id="adhesionDate"></span>
+    </div>
+
+    <div id="bioDisplay" class="info"></div>
+
+    <div class="info">
+      <strong>Nombre de points :</strong> <span id="userPoints"></span> ⭐
+    </div>
+
+    <div style="text-align:center; margin-top: 20px;">
+      <button id="btnEditProfile">✏️ Modifier mon profil</button>
+      <button id="btnLogout">🚪 Se déconnecter</button>
+    </div>
+
+    <!-- Section édition cachée -->
+    <div id="editSection">
+      <label for="uploadPhoto"><strong>Ajouter/modifier ma photo de profil :</strong></label><br />
+      <input type="file" id="uploadPhoto" accept="image/*" /><br />
+
+      <label for="userBio"><strong>Ma bio :</strong></label><br />
+      <textarea id="userBio" rows="4" placeholder="Parle-nous un peu de toi..."></textarea><br />
+
+      <button id="btnSaveProfile">💾 Enregistrer</button>
+      <button id="btnCancelEdit">❌ Annuler</button>
+    </div>
+
+    
+
+    <!-- Container QR Code -->
+    <div id="qrCodeContainer"></div>
+  </div>
+
+  <!-- Librairie QRCode.js via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    const username = sessionStorage.getItem("loggedUser");
+
+  
+
+    const profileImage = document.getElementById("profileImage");
+    const welcomeUser = document.getElementById("welcomeUser");
+    const adhesionDate = document.getElementById("adhesionDate");
+    const userPoints = document.getElementById("userPoints");
+    const bioDisplay = document.getElementById("bioDisplay");
+    const editSection = document.getElementById("editSection");
+    const uploadPhoto = document.getElementById("uploadPhoto");
+    const userBioInput = document.getElementById("userBio");
+    const clothesTableBody = document.querySelector("#clothesTable tbody");
+    const qrCodeContainer = document.getElementById("qrCodeContainer");
+
+    const btnEditProfile = document.getElementById("btnEditProfile");
+    const btnLogout = document.getElementById("btnLogout");
+    const btnSaveProfile = document.getElementById("btnSaveProfile");
+    const btnCancelEdit = document.getElementById("btnCancelEdit");
+    const btnFindClothes = document.getElementById("btnFindClothes");
+    const btnShowQR = document.getElementById("btnShowQR");
+
+    // Afficher le nom
+    welcomeUser.textContent = `Bienvenue, ${username} !`;
+
+    // Afficher la photo si elle existe
+    const savedPhoto = localStorage.getItem(`photo_${username}`);
+    if (savedPhoto) profileImage.src = savedPhoto;
+
+    // Afficher la date d’adhésion (ou l’enregistrer si c’est la première fois)
+    if (!localStorage.getItem(`adhesion_${username}`)) {
+      const today = new Date().toLocaleDateString("fr-FR");
+      localStorage.setItem(`adhesion_${username}`, today);
+    }
+    adhesionDate.textContent = localStorage.getItem(`adhesion_${username}`);
+
+    // Points (test avec une valeur fixe ou générée)
+    if (!localStorage.getItem(`points_${username}`)) {
+      localStorage.setItem(`points_${username}`, Math.floor(Math.random() * 50 + 10));
+    }
+    userPoints.textContent = localStorage.getItem(`points_${username}`);
+
+    // Afficher la bio
+    const savedBio = localStorage.getItem(`bio_${username}`);
+    if (savedBio) {
+      bioDisplay.textContent = `"${savedBio}"`;
+    } else {
+      bioDisplay.textContent = "Pas encore de bio renseignée.";
+    }
+
+    // Fonction afficher section édition profil
+    btnEditProfile.onclick = () => {
+      editSection.style.display = "block";
+      btnEditProfile.style.display = "none";
+      bioDisplay.style.display = "none";
+
+      // Pré-remplir champs
+      userBioInput.value = savedBio || "";
+      uploadPhoto.value = null;
+    };
+
+    // Annuler édition
+    btnCancelEdit.onclick = () => {
+      editSection.style.display = "none";
+      btnEditProfile.style.display = "inline-block";
+      bioDisplay.style.display = "block";
+      qrCodeContainer.innerHTML = ""; // cacher QR si affiché
+    };
+
+    // Sauvegarder les modifications
+    btnSaveProfile.onclick = () => {
+      const bio = userBioInput.value.trim();
+      localStorage.setItem(`bio_${username}`, bio);
+      bioDisplay.textContent = bio ? `"${bio}"` : "Pas encore de bio renseignée.";
+
+      // Photo uploadée
+      const file = uploadPhoto.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const imageURL = e.target.result;
+          profileImage.src = imageURL;
+          localStorage.setItem(`photo_${username}`, imageURL);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      alert("Profil mis à jour !");
+      btnCancelEdit.onclick();
+    };
+
+    // Déconnexion
+    btnLogout.onclick = () => {
+      sessionStorage.removeItem("loggedUser");
+      window.location.href = "index.html";
+    };
+
+    // Exemple données vêtements déposés (stockées localStorage sous clé clothes_{username})
+    function loadClothes() {
+      const data = localStorage.getItem(`clothes_${username}`);
+      return data ? JSON.parse(data) : [];
+    }
+
+    function displayClothes() {
+      const clothes = loadClothes();
+      clothesTableBody.innerHTML = "";
+      if (clothes.length === 0) {
+        clothesTableBody.innerHTML = `<tr><td colspan="3">Vous n'avez pas encore déposé de vêtements.</td></tr>`;
+      } else {
+        clothes.forEach(item => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.description}</td>
+            <td>${item.date}</td>
+          `;
+          clothesTableBody.appendChild(tr);
+        });
+      }
+    }
+
+    displayClothes();
+
+    // Bouton trouver vêtements proches
+    btnFindClothes.onclick = () => {
+      alert("Page de recherche de vêtements proches à créer !");
+      
+    };
+
+    // Bouton afficher QR Code
+    btnShowQR.onclick = () => {
+      qrCodeContainer.innerHTML = ""; // reset
+
+      // Générer QR code avec le nom utilisateur
+      new QRCode(qrCodeContainer, {
+        text: `fripbox-user:${username}`,
+        width: 180,
+        height: 180,
+        colorDark : "#4caf50",
+        colorLight : "#fff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+    };
+  </script>
+
+</body>
+</html>

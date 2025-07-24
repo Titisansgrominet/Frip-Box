@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Événements Frip'Box</title>
+
+  <!-- Leaflet (carte) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f8e9;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #4caf50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    #map {
+      height: 400px;
+      margin-bottom: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    #calendar {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .btn-retour {
+      display: inline-block;
+      margin: 20px;
+      padding: 10px 15px;
+      background-color: #4caf50;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<a href="index.html" class="btn-retour">⬅ Retour à l’accueil</a>
+
+<header>
+  <h1>Événements Frip’Box</h1>
+</header>
+
+<div class="container">
+  <h2>Carte des lieux d’événements</h2>
+  <div id="map"></div>
+
+  <h2>Calendrier des événements</h2>
+  <div id="calendar"></div>
+</div>
+
+<script>
+  // ---------- CARTE ----------
+  const map = L.map('map').setView([47.2184, -1.5536], 12); // Centré sur Nantes
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  // Points de lieux d’événements
+  const lieux = [
+    { name: "Événement au lycée", lat: 47.217, lng: -1.550 },
+    { name: "Frip’Atelier à la MJC", lat: 47.215, lng: -1.570 },
+    { name: "Custom Party – Quartier Est", lat: 47.220, lng: -1.530 }
+  ];
+
+  lieux.forEach(lieu => {
+    L.marker([lieu.lat, lieu.lng])
+      .addTo(map)
+      .bindPopup(`<b>${lieu.name}</b>`);
+  });
+
+  // ---------- CALENDRIER ----------
+  document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'fr',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,listWeek'
+      },
+      events: [
+        {
+          title: 'Atelier customisation',
+          start: '2025-08-05',
+          location: "Lycée",
+          description: "Atelier gratuit ouvert à tous"
+        },
+        {
+          title: 'Frip’Vide dressing',
+          start: '2025-08-12',
+          description: "Ramène tes vêtements à échanger !"
+        },
+        {
+          title: 'Défilé Frip’Box',
+          start: '2025-08-20'
+        }
+      ],
+      eventClick: function(info) {
+        alert(`📌 ${info.event.title}\n🗓️ Date : ${info.event.start.toLocaleDateString("fr-FR")}\n📍 Lieu : ${info.event.extendedProps.location || "Non précisé"}\nℹ️ ${info.event.extendedProps.description || ""}`);
+      }
+    });
+
+    calendar.render();
+  });
+</script>
+
+</body>
+</html>
